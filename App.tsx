@@ -83,7 +83,7 @@ const App: React.FC = () => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedRoomIds, setSelectedRoomIds] = useState<Set<string>>(new Set());
 
-  const fetchCloudData = async () => {
+  const fetchCloudData = async (isStartup = false) => {
     setIsCloudSyncing(true);
     const tables = [
       'rooms', 'guests', 'bookings', 'transactions', 'groups', 'supervisors', 'settings', 
@@ -107,19 +107,28 @@ const App: React.FC = () => {
     }
     
     // Refresh local states
-    setRooms(await db.rooms.toArray());
-    setGuests(await db.guests.toArray());
-    setBookings(await db.bookings.toArray());
-    setTransactions(await db.transactions.toArray());
-    setGroups(await db.groups.toArray());
-    setSupervisors(await db.supervisors.toArray());
-    setQuotations(await db.quotations.toArray());
-    
-    const s = await db.settings.get('primary');
+    const [r, g, b, t, grps, sups, qs, s] = await Promise.all([
+      db.rooms.toArray(),
+      db.guests.toArray(),
+      db.bookings.toArray(),
+      db.transactions.toArray(),
+      db.groups.toArray(),
+      db.supervisors.toArray(),
+      db.quotations.toArray(),
+      db.settings.get('primary')
+    ]);
+
+    setRooms(r);
+    setGuests(g);
+    setBookings(b);
+    setTransactions(t);
+    setGroups(grps);
+    setSupervisors(sups);
+    setQuotations(qs);
     if (s) setSettings(s);
     
     setIsCloudSyncing(false);
-    alert("Multi-device synchronization complete!");
+    if (!isStartup) alert("Multi-device synchronization complete!");
   };
 
   useEffect(() => {
@@ -130,14 +139,11 @@ const App: React.FC = () => {
 
     const init = async () => {
       try {
-        let r = await db.rooms.toArray();
-        // If local is empty, try a full cloud pull
-        if (r.length === 0) {
-          await fetchCloudData();
-          r = await db.rooms.toArray();
-        }
+        // ALWAYS PULL AT STARTUP FOR MULTI-DEVICE SYNC
+        await fetchCloudData(true);
 
-        // If still empty (fresh install with no cloud data), populate defaults
+        // If local is still empty after pull, populate defaults
+        let r = await db.rooms.toArray();
         if (r.length === 0) {
           await db.rooms.bulkPut(INITIAL_ROOMS);
           r = INITIAL_ROOMS;
@@ -496,7 +502,7 @@ const App: React.FC = () => {
           <Stat label="Repair" count={repairCount} color="text-amber-800" onClick={() => setStatusFilter(RoomStatus.REPAIR)} active={statusFilter === RoomStatus.REPAIR} />
           <div className="h-8 w-px bg-slate-100 hidden md:block mx-2"></div>
           <FooterBtn label="Bill Archive" onClick={() => setShowGlobalArchive(true)} icon="📄" />
-          <FooterBtn label="Cloud Pull" onClick={fetchCloudData} icon="🔄" />
+          <FooterBtn label="Cloud Pull" onClick={() => fetchCloudData()} icon="🔄" />
           <FooterBtn label="Backup" onClick={exportDatabase} icon="☁️" />
         </div>
       </footer>

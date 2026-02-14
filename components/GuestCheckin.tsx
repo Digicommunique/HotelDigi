@@ -172,8 +172,8 @@ const GuestCheckin: React.FC<GuestCheckinProps> = ({
                 <Inp label="Mobile Number *" value={guest.phone} onChange={(v: string) => setGuest({...guest, phone: v})} />
                 <Inp label="Full Name *" value={guest.name} onChange={(v: string) => setGuest({...guest, name: v})} className="md:col-span-2" />
                 
-                {/* OCCUPANT COUNT GRID - Fixed Visibility */}
-                <div className="grid grid-cols-3 gap-2 md:col-span-1">
+                {/* WIDENED OCCUPANT BOXES FOR VISIBILITY */}
+                <div className="grid grid-cols-3 gap-2 md:col-span-1 min-w-[200px]">
                   <Inp label="Adult" type="number" value={guest.adults?.toString()} onChange={(v: string) => setGuest({...guest, adults: parseInt(v) || 1})} isCompact />
                   <Inp label="Child" type="number" value={guest.children?.toString()} onChange={(v: string) => setGuest({...guest, children: parseInt(v) || 0})} isCompact />
                   <Inp label="Kid" type="number" value={guest.kids?.toString()} onChange={(v: string) => setGuest({...guest, kids: parseInt(v) || 0})} isCompact />
@@ -256,8 +256,8 @@ const GuestCheckin: React.FC<GuestCheckinProps> = ({
                     <button onClick={() => setIsGstInclusive(false)} className={`px-5 py-2 rounded-full font-black text-[9px] uppercase border-2 transition-all ${!isGstInclusive ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white text-slate-400 border-slate-100 hover:border-blue-100'}`}>GST Exclusive</button>
                  </div>
               </div>
-              <div className="border rounded-[2.5rem] overflow-hidden shadow-sm">
-                <table className="w-full text-left">
+              <div className="border rounded-[2.5rem] overflow-hidden shadow-sm overflow-x-auto">
+                <table className="w-full text-left min-w-[800px]">
                   <thead className="bg-slate-900 text-white font-black uppercase text-[10px]">
                     <tr><th className="p-5">Unit</th><th className="p-5 text-right">Tariff (₹)</th><th className="p-5 text-right">Meal Rate (₹)</th><th className="p-5 text-right">Discount (₹)</th><th className="p-5 text-right">Stay Value (₹)</th></tr>
                   </thead>
@@ -291,6 +291,7 @@ const GuestCheckin: React.FC<GuestCheckinProps> = ({
                     <option value="EP (Room Only)">EP (Room Only)</option><option value="CP (Room + B/Fast)">CP (Room + B/Fast)</option><option value="MAP (Room + 2 Meals)">MAP (Room + 2 Meals)</option><option value="AP (Room + All Meals)">AP (Room + All Meals)</option>
                   </select>
                 </div>
+                {/* MEAL RATE POSITIONED BELOW MEAL PLAN */}
                 <Inp label="Meal Rate (Per Room/Day) ₹" type="number" value={globalMealRate.toString()} onChange={(v: string) => setGlobalMealRate(parseFloat(v) || 0)} />
               </div>
               <div className="p-8 bg-white border-2 rounded-[2.5rem] shadow-sm space-y-4">
@@ -326,7 +327,7 @@ const Inp = ({ label, value, onChange, type = "text", className = "", isCompact 
     <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">{label}</label>
     <input 
       type={type} 
-      className={`w-full border-2 ${isCompact ? 'p-2 md:p-3 text-center' : 'p-3 md:p-4'} rounded-2xl font-black text-[14px] bg-slate-50 outline-none focus:border-blue-500 transition-all text-black shadow-inner appearance-none leading-none`} 
+      className={`w-full border-2 ${isCompact ? 'p-2 md:p-4 text-center' : 'p-3 md:p-5'} rounded-2xl font-black text-[14px] bg-slate-50 outline-none focus:border-blue-500 transition-all text-black shadow-inner appearance-none leading-none`} 
       value={value || ''} 
       onChange={e => onChange(e.target.value)} 
     />
